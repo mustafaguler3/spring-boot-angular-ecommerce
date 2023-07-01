@@ -1,7 +1,9 @@
 package com.example.demo.config;
 
+import com.example.demo.entities.Country;
 import com.example.demo.entities.Product;
 import com.example.demo.entities.ProductCategory;
+import com.example.demo.entities.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -33,6 +35,11 @@ public class DataRestConfig implements RepositoryRestConfigurer {
           HttpMethod.DELETE,
           HttpMethod.POST
         };
+        disableHttpMethods(Product.class,config,unsupportedActions);
+        disableHttpMethods(Country.class,config,unsupportedActions);
+        disableHttpMethods(State.class,config,unsupportedActions);
+        disableHttpMethods(ProductCategory.class,config,unsupportedActions);
+
         cors.addMapping("/api/**").allowedOrigins("*");
         // disabled HTTP methods for product : PUT , POST , DELETE
 
@@ -59,6 +66,13 @@ public class DataRestConfig implements RepositoryRestConfigurer {
 
         Class[] domainTypes = entityClasses.toArray(new Class[0]);
         config.exposeIdsFor(domainTypes);
+    }
+
+    private void disableHttpMethods(Class theClass,RepositoryRestConfiguration config,HttpMethod[] unsupportedActions){
+        config.getExposureConfiguration()
+                .forDomainType(theClass)
+                .withItemExposure((metaData,httpMethods) -> httpMethods.disable(unsupportedActions))
+                .withCollectionExposure((metaData,httpMethods) -> httpMethods.disable(unsupportedActions));
     }
 }
 
